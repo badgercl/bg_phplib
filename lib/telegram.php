@@ -5,11 +5,30 @@ function tgparseinput(){
 	$postData = file_get_contents('php://input');
 	if(!isset($postData)) return NULL;
 	$json = json_decode($postData, true);
-	//error_log($postData);
+	
 	$m = $json;
-	if(isset($json['message'])) $m = $json['message'];
+	if( isset($json['message']) ) { 
+		$m = $json['message'];
+		$m = get_entities ($m);
+	}
 	else if(isset($json['location'])) $m = $json;
 	else if(isset($json['inline_query'])) $m = $json['inline_query'];
+	return $m;
+}
+
+function get_entities($m) {
+	if( !isset($m['entities']) ) return $m;
+	$cmd = NULL;
+	foreach ( $m['entities'] as &$entity ) {
+		$entity['entity'] = mb_substr( $m['text'], $entity['offset'], $entity['length'] );
+		if ($entity['type'] == "bot_command" && $entity['offset'] == 0) { 
+			$m['bot_command'] = [
+				'cmd' => mb_strtolower($entity['entity']),
+				'txt' => trim(mb_substr($m['text'], $entity['length']))
+			];
+		} 
+	}
+	unset($entity);
 	return $m;
 }
 
@@ -23,7 +42,7 @@ function tgstart($msg, $m, $db, $token, $start){
 
   $sql = "SELECT * FROM tg_users WHERE uid = '$uid'";
   $res = DbConfig::sql($db, $sql);
-	if(!$res){
+	if(!$res) {
 		error_log($sql);
         error_log($db->error);
 	}
@@ -51,6 +70,12 @@ function tgstart($msg, $m, $db, $token, $start){
 function tgsend_msg($msg, $uid, $token){
 	$msg = urlencode($msg);
 	$cmd = "https://api.telegram.org/bot$token/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML";
+	$res = file_get_contents($cmd);
+}
+
+function tgset_title($title, $uid, $token){
+	$title = urlencode($title);
+	$cmd = "https://api.telegram.org/bot$token/setChatTitle?chat_id=$uid&title=$title";
 	$res = file_get_contents($cmd);
 }
 
