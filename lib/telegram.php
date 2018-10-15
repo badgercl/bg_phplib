@@ -119,6 +119,13 @@ class Telegram {
 		$res = HTTP::request($cmd);
 	}
 
+	function dismissKeyboard($msg, $uid) {
+		$reply_mark = [ 'remove_keyboard' => TRUE ];
+		$reply_mark = urlencode(json_encode($reply_mark));
+		$cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML&reply_markup=$reply_mark";
+		HTTP::request($cmd);
+	}
+
 	function tgchat_action($action, $uid, $token){
 		$cmd = "https://api.telegram.org/bot$token/sendChatAction?chat_id=$uid&action=$action";
 		file_get_contents($cmd);	
