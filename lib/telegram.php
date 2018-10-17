@@ -6,7 +6,7 @@ class Telegram {
 	private $http;
 	public $username;
 
-	function __construct($token, $username, $db, $http = new HTTP()) {
+	function __construct($token, $username, $db, $http) {
 		$this->baseUrl = "https://api.telegram.org/bot" . $token;
 		$this->db = $db;
 		$this->username = mb_strtolower($username);	
@@ -151,7 +151,7 @@ class Telegram {
 	    if ($reply_to_message_id) $cmd .= "&reply_to_message_id=" . $reply_to_message_id;
 	    if ($selective) $cmd .= "&selective=true";
 	    echo $cmd;
-		$res = $http->request($cmd);
+		$res = $this->http->request($cmd);
 	}
 
 	function dismissKeyboard($msg, $uid) {
@@ -163,7 +163,7 @@ class Telegram {
 
 	function getChatMember($chat_id, $user_id) {
 		$cmd = $this->baseUrl . "/getChatMember?chat_id=$chat_id&user_id=$user_id";
-		return $http->request($cmd);
+		return $this->http->request($cmd);
 	}
 
 	function tgchat_action($action, $uid, $token){

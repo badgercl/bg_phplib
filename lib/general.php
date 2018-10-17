@@ -37,6 +37,10 @@ class UTIL {
     	}
 	    return (mb_substr($haystack, -$length) === $needle);
 	}
+
+	static function LOG($m) {
+		error_log(json_encode($m));
+	}
 }
 
 class TG_UTILS {
