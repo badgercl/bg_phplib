@@ -3,10 +3,14 @@
 class Telegram {
 	private $db;
 	private $baseUrl;
+	private $http;
+	public $username;
 
-	function __construct($token, $db) {
+	function __construct($token, $username, $db, $http = new HTTP()) {
 		$this->baseUrl = "https://api.telegram.org/bot" . $token;
-		$this->db = $db;		
+		$this->db = $db;
+		$this->username = mb_strtolower($username);	
+		$this->http = $http;	
 	}
 
 	function parseInput(){
@@ -24,20 +28,25 @@ class Telegram {
 		return $m;
 	}
 
-	private function getEntities($m) {
+	function getEntities($m) {
 		if( !isset($m['entities']) ) return $m;
 		$cmd = NULL;
 		foreach ( $m['entities'] as &$entity ) {
 			$entity['entity'] = mb_substr( $m['text'], $entity['offset'], $entity['length'] );
 			if ($entity['type'] == "bot_command" && $entity['offset'] == 0) { 
 				$m['bot_command'] = [
-					'cmd' => mb_strtolower($entity['entity']),
+					'cmd' => $this->cleanCommand( $entity['entity'] ),
 					'txt' => trim(mb_substr($m['text'], $entity['length']))
 				];
 			} 
 		}
 		unset($entity);
 		return $m;
+	}
+
+	private function cleanCommand($cmd) {
+		$cmd = mb_strtolower($cmd);
+		return str_replace($this->username, "", $cmd);
 	}
 
 	function start($msg, $m, $token, $start){
@@ -81,7 +90,14 @@ class Telegram {
 		$msg = urlencode($msg);
 		$cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML";
 		if ($reply_to_message_id) $cmd .= "&reply_to_message_id=".$reply_to_message_id;
-		$res = HTTP::request($cmd);
+		$res = $http->request($cmd);
+
+	}
+
+	function editMessageText($msg, $uid, $message_id) {
+		$msg = urlencode($msg);
+		$cmd = $this->baseUrl . "/editMessageText?message_id=$message_id&text=$msg&parse_mode=HTML";
+		$res = $http->request($cmd);
 
 	}
 
@@ -89,7 +105,7 @@ class Telegram {
 		$uid = $m['chat']['id'];
 		$title = urlencode($title);
 		$cmd = $this->baseUrl . "/setChatTitle?chat_id=$uid&title=$title";
-		$res = HTTP::request($cmd); 
+		$res = $http->request($cmd); 
 		if ($res['http_code'] != 200 ) {
 			$this->sendMsg("No puedo cambiar el título. Debo ser admin de este grupo.", $uid, $m['message_id']);
 		}
@@ -106,7 +122,7 @@ class Telegram {
 		$res = file_get_contents($cmd);
 	}
 
-	function showOptions($msg, $options, $uid){
+	function showOptions($msg, $options, $uid, $selective) {
 		if(!is_array($options) || count($options) <= 0) return;
 		$reply_mark = [];
 		$reply_mark['one_time_keyboard'] = TRUE;
@@ -116,14 +132,38 @@ class Telegram {
 		}
 		$reply_mark = urlencode(json_encode($reply_mark));
 	    $cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML&reply_markup=$reply_mark";
-		$res = HTTP::request($cmd);
+	    if ($selective) $cmd .= "&selective=true";
+		$res = $http->request($cmd);
+	}
+
+	function showInlineOptions($msg, $options, $uid, $reply_to_message_id = NULL, $selective = true) {
+		if(!is_array($options) || count($options) <= 0) return;
+
+		$reply_mark = [];
+		$reply_mark['inline_keyboard'] = [];
+		foreach($options as $o){
+			if(is_array($o)) $reply_mark['inline_keyboard'][] = [$o];
+			else $reply_mark['inline_keyboard'][] = [['text'=>$o]];
+		}
+
+		$reply_mark = urlencode(json_encode($reply_mark));
+	    $cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML&reply_markup=$reply_mark";
+	    if ($reply_to_message_id) $cmd .= "&reply_to_message_id=" . $reply_to_message_id;
+	    if ($selective) $cmd .= "&selective=true";
+	    echo $cmd;
+		$res = $http->request($cmd);
 	}
 
 	function dismissKeyboard($msg, $uid) {
 		$reply_mark = [ 'remove_keyboard' => TRUE ];
 		$reply_mark = urlencode(json_encode($reply_mark));
 		$cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML&reply_markup=$reply_mark";
-		HTTP::request($cmd);
+		$http->request($cmd);
+	}
+
+	function getChatMember($chat_id, $user_id) {
+		$cmd = $this->baseUrl . "/getChatMember?chat_id=$chat_id&user_id=$user_id";
+		return $http->request($cmd);
 	}
 
 	function tgchat_action($action, $uid, $token){

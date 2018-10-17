@@ -1,12 +1,12 @@
 <?php
 
 class HTTP {
-	static function httpdie($code, $msg){
+	function httpdie($code, $msg){
 		http_response_code($code);
 		die($msg);
 	}
 
-	static function request($url) {
+	function request($url) {
 		$ch = curl_init();
 
 		curl_setopt($ch, CURLOPT_URL, $url);
@@ -24,4 +24,31 @@ class HTTP {
 	}
 }
 
+class UTIL {
+	static function startsWith($haystack, $needle){
+		$length = mb_strlen($needle);
+     	return (mb_substr($haystack, 0, $length) === $needle);
+	}
 
+	static function endsWith($haystack, $needle) {
+    	$length = mb_strlen($needle);
+    	if ($length == 0) {
+        	return true;
+    	}
+	    return (mb_substr($haystack, -$length) === $needle);
+	}
+}
+
+class TG_UTILS {
+	static function is_admin($m, $telegram, $reply) {
+		$chat_member = $telegram->getChatMember($m['chat']['id'], $m['from']['id']);
+		if( !isset($chat_member['result']['status']) ) return FALSE;
+
+		$is_admin = $chat_member['result']['status'] == "creator" || $chat_member['result']['status'] == "administrator";
+		if( !$is_admin ) {
+			$telegram->sendMsg("Debes ser admin para ejecutar esta acción", $m['chat']['id'], $m['message_id']);
+		}
+		
+		return $is_admin;
+	} 
+}
