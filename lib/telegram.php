@@ -83,9 +83,6 @@ class Telegram {
 	  if($msg) tgsend_msg($msg, $uid, $token);
 	}
 
-
-
-
 	function sendMsg($msg, $uid, $reply_to_message_id = NULL){
 		$msg = urlencode($msg);
 		$cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML";
@@ -94,10 +91,12 @@ class Telegram {
 
 	}
 
-	function editMessageText($msg, $uid, $message_id) {
+	function editMessageText($msg, $chat_id, $message_id) {
 		$msg = urlencode($msg);
-		$cmd = $this->baseUrl . "/editMessageText?message_id=$message_id&text=$msg&parse_mode=HTML";
-		$res = $http->request($cmd);
+		UTIL::LOG($message_id);	
+		$cmd = $this->baseUrl . "/editMessageText?chat_id=$chat_id&message_id=$message_id&text=$msg&parse_mode=HTML&reply_markup={}";
+		UTIL::LOG($cmd);
+		$res = $this->http->request($cmd);
 
 	}
 
@@ -105,7 +104,7 @@ class Telegram {
 		$uid = $m['chat']['id'];
 		$title = urlencode($title);
 		$cmd = $this->baseUrl . "/setChatTitle?chat_id=$uid&title=$title";
-		$res = $http->request($cmd); 
+		$res = $this->http->request($cmd); 
 		if ($res['http_code'] != 200 ) {
 			$this->sendMsg("No puedo cambiar el título. Debo ser admin de este grupo.", $uid, $m['message_id']);
 		}
