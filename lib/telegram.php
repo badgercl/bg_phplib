@@ -17,36 +17,7 @@ class Telegram {
 		$postData = file_get_contents('php://input');
 		if(!isset($postData)) return NULL;
 		$json = json_decode($postData, true);
-		
-		$m = $json;
-		if( isset($json['message']) ) { 
-			$m = $json['message'];
-			$m = $this->getEntities ($m);
-		}
-		else if(isset($json['location'])) $m = $json;
-		else if(isset($json['inline_query'])) $m = $json['inline_query'];
-		return $m;
-	}
-
-	function getEntities($m) {
-		if( !isset($m['entities']) ) return $m;
-		$cmd = NULL;
-		foreach ( $m['entities'] as &$entity ) {
-			$entity['entity'] = mb_substr( $m['text'], $entity['offset'], $entity['length'] );
-			if ($entity['type'] == "bot_command" && $entity['offset'] == 0) { 
-				$m['bot_command'] = [
-					'cmd' => $this->cleanCommand( $entity['entity'] ),
-					'txt' => trim(mb_substr($m['text'], $entity['length']))
-				];
-			} 
-		}
-		unset($entity);
-		return $m;
-	}
-
-	private function cleanCommand($cmd) {
-		$cmd = mb_strtolower($cmd);
-		return str_replace($this->username, "", $cmd);
+		return $json;
 	}
 
 	function start($msg, $m, $token, $start){
@@ -173,9 +144,7 @@ class Telegram {
 	function tgshowoptions($options, $qid, $token){
 		$res = [];
 		foreach($options as $o){
-			$rid = md5($qid . 
-		$o['title'] . 
-	$o['msg']);
+			$rid = md5($qid . $o['title'] . $o['msg']);
 			$res[] = [
 				'type' => 'article',
 			'id' => $rid,
