@@ -3,9 +3,9 @@
 class DbConfig{
 
   public static function getConnection($db_host, $db_user, $db_pass, $db_name) {
-    //$mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name, 8889);
-    //$mysqli->set_charset("utf8mb4");
-    return NULL;
+    $mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name, 8889);
+    $mysqli->set_charset("utf8mb4");
+    return $mysqli;
   }
   
   public static function sql($db, $sql){
@@ -19,6 +19,7 @@ class DbConfig{
   }
   
   public static function update($db, $sql){
+    echo $sql;
     return $db->query($sql);
   }
 }
