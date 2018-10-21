@@ -24,17 +24,13 @@ class Telegram {
 		$msg = urlencode($msg);
 		$cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML";
 		if ($reply_to_message_id) $cmd .= "&reply_to_message_id=".$reply_to_message_id;
-		$res = $this->http->request($cmd);
-
+		return $this->http->request($cmd);
 	}
 
 	function editMessageText($msg, $chat_id, $message_id) {
 		$msg = urlencode($msg);
-		UTIL::LOG($message_id);	
 		$cmd = $this->baseUrl . "/editMessageText?chat_id=$chat_id&message_id=$message_id&text=$msg&parse_mode=HTML&reply_markup={}";
-		UTIL::LOG($cmd);
-		$res = $this->http->request($cmd);
-
+		return $this->http->request($cmd);
 	}
 
 	function setGroupTitle($title, $m){
