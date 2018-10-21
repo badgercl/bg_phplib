@@ -102,6 +102,26 @@ class Telegram {
 		return $this->http->request($cmd);
 	}
 
+	function getChatMembersCount( $chat_id ) {
+		$cmd = $this->baseUrl . "/getChatMembersCount?chat_id=$chat_id";
+		return $this->http->request($cmd);
+	}
+
+	function exportChatInviteLink( $gid ) {
+		$cmd = $this->baseUrl . "/getChatMembersCount?chat_id=$chat_id";
+		return $this->http->request($cmd);
+	}
+
+	function getChatAdministrators( $gid ) {
+		$cmd = $this->baseUrl . "/getChatAdministrators?chat_id=$chat_id";
+		return $this->http->request($cmd);
+	}
+
+	function getChat( $chat_id ) {
+		$cmd = $this->baseUrl . "/getChat?chat_id=$chat_id";
+		return $this->http->request($cmd);
+	}
+
 	function tgchat_action($action, $uid, $token){
 		$cmd = "https://api.telegram.org/bot$token/sendChatAction?chat_id=$uid&action=$action";
 		file_get_contents($cmd);	
