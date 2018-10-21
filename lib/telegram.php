@@ -24,7 +24,7 @@ class Telegram {
 		$msg = urlencode($msg);
 		$cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML";
 		if ($reply_to_message_id) $cmd .= "&reply_to_message_id=".$reply_to_message_id;
-		$res = $http->request($cmd);
+		$res = $this->http->request($cmd);
 
 	}
 
@@ -108,12 +108,12 @@ class Telegram {
 	}
 
 	function exportChatInviteLink( $gid ) {
-		$cmd = $this->baseUrl . "/getChatMembersCount?chat_id=$chat_id";
+		$cmd = $this->baseUrl . "/exportChatInviteLink?chat_id=$gid";
 		return $this->http->request($cmd);
 	}
 
 	function getChatAdministrators( $gid ) {
-		$cmd = $this->baseUrl . "/getChatAdministrators?chat_id=$chat_id";
+		$cmd = $this->baseUrl . "/getChatAdministrators?chat_id=$gid";
 		return $this->http->request($cmd);
 	}
 
