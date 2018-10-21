@@ -118,12 +118,17 @@ class Telegram {
 		return $this->http->request($cmd);
 	}
 
-	function tgchat_action($action, $uid, $token){
+	function forwardMessage( $to_chat_id, $from_chat_id, $message_id ) {
+		$cmd = $this->baseUrl . "/forwardMessage?chat_id=$to_chat_id&from_chat_id=$from_chat_id&message_id=$message_id";
+		return $this->http->request($cmd);
+	}
+
+	function tgchat_action($action, $uid, $token) {
 		$cmd = "https://api.telegram.org/bot$token/sendChatAction?chat_id=$uid&action=$action";
 		file_get_contents($cmd);	
 	}
 
-	function tgshowoptions($options, $qid, $token){
+	function tgshowoptions($options, $qid, $token) {
 		$res = [];
 		foreach($options as $o){
 			$rid = md5($qid . $o['title'] . $o['msg']);
