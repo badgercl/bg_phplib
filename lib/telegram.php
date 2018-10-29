@@ -70,6 +70,7 @@ class Telegram {
 
 	function showInlineOptions($msg, $options, $uid, $reply_to_message_id = NULL, $selective = true) {
 		if(!is_array($options) || count($options) <= 0) return;
+		$msg = urlencode($msg);
 
 		$reply_mark = [];
 		$reply_mark['inline_keyboard'] = [];
