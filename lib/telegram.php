@@ -20,10 +20,11 @@ class Telegram {
 		return $json;
 	}
 
-	function sendMsg($msg, $uid, $reply_to_message_id = NULL){
+	function sendMsg($msg, $uid, $reply_to_message_id = NULL, $disable_preview = FALSE){
 		$msg = urlencode($msg);
-		$cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML&disable_web_page_preview=1";
-		if ($reply_to_message_id) $cmd .= "&reply_to_message_id=".$reply_to_message_id;
+		$cmd = $this->baseUrl . "/sendMessage?chat_id=$uid&text=$msg&parse_mode=HTML";
+		if( $disable_preview ) $cmd .= "&disable_web_page_preview=1";
+		if( $reply_to_message_id ) $cmd .= "&reply_to_message_id=".$reply_to_message_id;
 		return $this->http->request($cmd);
 	}
 
