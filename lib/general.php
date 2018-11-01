@@ -41,6 +41,22 @@ class UTIL {
 	static function LOG($m) {
 		error_log(json_encode($m));
 	}
+
+	static function msg_chunks( $txt, $limit = 9000 ) {
+		$res = [];
+		$chunks = explode( "\n", $txt );
+
+		$i = 0;
+		foreach( $chunks as $chunk ) {
+			if( !isset($res[$i]) ) $res[$i] = "";
+			if( (mb_strlen($res[$i]) + mb_strlen($chunk)) < $limit ) {
+				$res[$i] .= $chunk . "\n";
+			} else {
+				$i++;
+			}
+		}
+		return $res;
+	}
 }
 
 class TG_UTILS {
