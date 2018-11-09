@@ -42,7 +42,7 @@ class UTIL {
 		error_log(json_encode($m));
 	}
 
-	static function msg_chunks( $txt, $limit = 9000 ) {
+	static function msg_chunks( $txt, $limit = 7500 ) {
 		$res = [];
 		$chunks = explode( "\n", $txt );
 
